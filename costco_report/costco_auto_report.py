@@ -1,3 +1,4 @@
+import google.auth.exceptions
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -58,18 +59,25 @@ def gmail_authenticate():  # Create GMAIl credentials for authentication
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+            try:
+                creds.refresh(Request())
+            except google.auth.exceptions.RefreshError as e:
+                flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+                creds = flow.run_local_server(port=0)
         else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
+
         with open(TOKEN_FILE, "w", encoding="utf-8") as token:
             token.write(creds.to_json())
-    gmail_service = build("gmail", "v1", credentials=creds)
-    return gmail_service
+    # gmail_service = build("gmail", "v1", credentials=creds)
+    return creds
 
 
 def get_gmail_service():  # get credentials
-    service = gmail_authenticate()
+    creds = gmail_authenticate()
+    service = build("gmail", "v1", credentials=creds)
+
     return service
 
 
