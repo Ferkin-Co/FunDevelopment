@@ -16,6 +16,8 @@ import os
 import io
 
 """
+AUTHOR:: Grayson Jitmetta
+VERSION:: 0.02
 REGION, LOCATION, DEPARTIME, ACTIVITY NAME, LAST NAME, FIRST NAME, HIRED DATE, JOB CODE, JOB TITLES, STATUS, GRADE, 
 COMPLETION DATE, COMMENTS
 
@@ -70,11 +72,11 @@ def gmail_authenticate():  # Create GMAIl credentials for authentication
 
         with open(TOKEN_FILE, "w", encoding="utf-8") as token:
             token.write(creds.to_json())
-    # gmail_service = build("gmail", "v1", credentials=creds)
+
     return creds
 
 
-def get_gmail_service():  # get credentials
+def get_gmail_service():  # get credentials and create service object
     creds = gmail_authenticate()
     service = build("gmail", "v1", credentials=creds)
 
