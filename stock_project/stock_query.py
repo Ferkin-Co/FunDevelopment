@@ -9,43 +9,45 @@ class StockQuery:
     def __init__(self, ticker: str = None, ticker_time: str = None):
         self.stock_tick = ticker
         self.stock_time = ticker_time
+        self.total_mean_growth = None
 
     def query_ticker(self):
-        ticker_query = yfin.Ticker(self.stock_tick)
-
-        return ticker_query
+        try:
+            ticker_query = yfin.Ticker(self.stock_tick)
+            return ticker_query
+        except Exception:
+            return None
 
     def create_stock_dataframe(self):
         try:
             ticker_data = self.query_ticker()
             df = pd.DataFrame(ticker_data.history(period=self.stock_time)).reset_index()
             pd.set_option('display.max_columns', None)
-
+            df[["Open", "Close"]] = df[["Open", "Close"]].round(2)
             formatted_df = df[["Date", "Open", "Close"]].copy()
             formatted_df["Date"] = pd.to_datetime(formatted_df["Date"]).dt.date
-            formatted_df["Average Growth"] = formatted_df["Close"] - formatted_df["Open"]
-            total_mean = np.mean(formatted_df["Average Growth"])
-            # formatted_df.at[0, "Total Mean"] = np.mean(formatted_df["Average Growth"])
+            formatted_df["Average_Change"] = (formatted_df["Close"] - formatted_df["Open"]).round(2)
+
             formatted_df.rename_axis(f"Company:{self.stock_tick}", inplace=True)
 
-            return print(f"{formatted_df}\nTotal Mean Growth: {total_mean}")
+            self.get_mean_change(formatted_df)
+
+            return formatted_df
         except Exception as e:
-            traceback_info = traceback.format_exc()
-            return print(f"Error: {e}\n{traceback_info}")
+            df = pd.DataFrame()
 
-# try:
-#     while True:
-#         user_input = input("Enter a stock ticker >> ")
-#         if 0 < len(user_input) <= 4 and user_input.isalpha():
-#             break
-#         else:
-#             print("Stock tickers cannot be more than 4 characters or less than 0")
-#             continue
-# except Exception as e:
-#     traceback_info = traceback.format_exc()
-#     print(f"Error: {e}\n{traceback_info}")
+            return df
 
+    def get_mean_change(self, df):
+        total_mean_change = np.mean(df["Average_Change"].values).round(2)
+        return total_mean_change
 
+    def get_total_change(self, df):
+        total_change = (df["Close"].iloc[-1] - df["Open"].iloc[0]).round(2)
+        return total_change
+    def get_percent_change(self, df):
+        close = df["Close"].iloc[-1]
+        open = df["Open"].iloc[0]
 
-# stonk = StockQuery(user_input.upper(), "1mo")
-# stonk.create_stock_dataframe()
+        percent_change = ((close - open)/open) * 100
+        return percent_change
