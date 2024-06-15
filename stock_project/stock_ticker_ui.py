@@ -89,7 +89,7 @@ class CompletionPopup(QDialog):
         self.ok_button.clicked.connect(self.close)
 
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel(f"Mean Change: {meanchange}"))
+        layout.addWidget(QLabel(f"Average Change: {meanchange}"))
         layout.addWidget(QLabel(f"Total Change: {totalchange}"))
         layout.addWidget(QLabel(f"Total Percent Change: {totalpercent:.2f}%"))
 
