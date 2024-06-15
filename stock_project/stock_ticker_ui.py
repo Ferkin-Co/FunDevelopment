@@ -106,6 +106,7 @@ class CompletionPopup(QDialog):
         table.setWordWrap(True)
         table.resizeRowsToContents()
         table.resizeColumnsToContents()
+        table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
 
         layout.addWidget(table)
         layout.addWidget(self.ok_button)
