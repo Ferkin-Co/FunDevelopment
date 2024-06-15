@@ -219,7 +219,7 @@ def export_log(res_df):  # export resulting dataframe as csv and send to email
 
     # Encode message in base64 format
     raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
-    service.users().messages().send(userId='me', body={"raw" : raw_message}).execute()
+    service.users().messages().send(userId='me', body={"raw": raw_message}).execute()
 
     return
 
