@@ -57,6 +57,7 @@ def delisted_window(ticker_name=None):
     dialog.setLayout(layout)
     dialog.exec()
 
+
 def confirm_window(choice=None, ticker=None):
     if choice.lower() == "quit":
         confirm_win = QMessageBox.question(None, "Quit", "Would you like to Quit?",
@@ -70,13 +71,16 @@ def confirm_window(choice=None, ticker=None):
         if confirm_win == QMessageBox.StandardButton.Ok:
             return True
 
+
 def click_exit():
     exit_window = confirm_window("quit")
     return exit_window
 
+
 def click_confirm_execute(stock_ticker):
     execute_window = confirm_window(choice="execute", ticker=stock_ticker)
     return execute_window
+
 
 class CompletionPopup(QDialog):
     def __init__(self, stock_data=None, meanchange=None, totalchange=None, totalpercent=None, ticker_name=None):
@@ -117,11 +121,13 @@ class StockWorker(QThread):
     finished = pyqtSignal(tuple)
     error_message = pyqtSignal(str)
     delisted_message = pyqtSignal(str)
+
     def __init__(self, stock_ticker=None, timeframe=None):
         super().__init__()
         self.ticker_name = stock_ticker
         self.timeframe = timeframe
         self.stockquery = stock_query.StockQuery(self.ticker_name, self.timeframe)
+
     def run(self):
         try:
             stock_data = self.stockquery.create_stock_dataframe()
@@ -174,7 +180,6 @@ class StockUI(QWidget):
         # Establish form layout and call stock_ui function
         self.layout = QFormLayout()
         self.stock_ui()
-
 
     def stock_ui(self):
         # TEXT BOX
@@ -237,7 +242,6 @@ class StockUI(QWidget):
             return error_window(error_text)
 
 
-
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -260,7 +264,6 @@ class MainWindow(QWidget):
 
     def delisted_popup(self, tickername):
         delisted_window(tickername)
-
 
 
 def main():

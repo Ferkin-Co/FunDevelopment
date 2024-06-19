@@ -1,7 +1,6 @@
 import yfinance as yfin
 import pandas as pd
 import numpy as np
-import traceback
 
 
 
@@ -22,7 +21,7 @@ class StockQuery:
         try:
             ticker_data = self.query_ticker()
             df = pd.DataFrame(ticker_data.history(period=self.stock_time)).reset_index()
-            pd.set_option('display.max_columns', None)
+
             df[["Open", "Close"]] = df[["Open", "Close"]].round(2)
             formatted_df = df[["Date", "Open", "Close"]].copy()
             formatted_df["Date"] = pd.to_datetime(formatted_df["Date"]).dt.date
@@ -45,6 +44,7 @@ class StockQuery:
     def get_total_change(self, df):
         total_change = (df["Close"].iloc[-1] - df["Open"].iloc[0]).round(2)
         return total_change
+
     def get_percent_change(self, df):
         close = df["Close"].iloc[-1]
         open = df["Open"].iloc[0]
