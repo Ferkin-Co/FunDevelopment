@@ -34,8 +34,8 @@ WHEN FIRST RUNNING PROGRAM, YOU WILL NEED TO AUTHENTICATE USER
 """
 # CONSTANTS
 SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
-SEND_TO = "gjitmetta@gmail.com"
-# SEND_TO = "palaszewskisteven@gmail.com"
+#SEND_TO = "gjitmetta@gmail.com"
+SEND_TO = "palaszewskisteven@gmail.com"
 TODAY_DATE = dt.datetime.today().strftime("%Y-%m-%d")
 TOKEN_FILE = "token.json"
 EMAIL_SUBJECT = "Background Report Job Email Notification"
@@ -85,11 +85,19 @@ def get_gmail_service():  # get credentials and create service object
 
 def get_email():  # Get email containing specified subject -- grabs most recent
     results = service.users().messages().list(userId='me', q=f'subject:"{EMAIL_SUBJECT}"',
-                                              maxResults=1).execute()
+                                              maxResults=4).execute()
     messages = results.get('messages', [])
 
-    if messages:
-        return messages[0]
+    for message in messages:
+        message_detail = service.users().messages().get(userId='me', id=message['id']).execute()
+        parts = message_detail['payload'].get('parts', [])
+        for part in parts:
+            if part.get('filename') == 'report.csv.zip':
+                headers = message_detail.get('payload', {}).get('headers', [])
+                date_header = next((header['value'] for header in headers if header['name'] == 'Date'), None)
+                print(f"Email received: {date_header}")
+                return message
+
     return
 
 
@@ -108,7 +116,7 @@ def get_attachments(message_id):  # get report attachment from email data and sa
 
     parts = message['payload'].get('parts', [])
     for part in parts:
-        if part['filename']:
+        if part['filename'] == 'report.csv.zip':
             file_name = part['filename']
             if 'attachmentId' in part['body']:
                 attachment_id = part['body']['attachmentId']
@@ -118,7 +126,7 @@ def get_attachments(message_id):  # get report attachment from email data and sa
 
                 print(f"Unzipping {part['filename']}...")
 
-                if file_name.lower().endswith('.zip'):
+                if file_name.lower().endswith('csv.zip'):
                     with zipfile.ZipFile(io.BytesIO(file_data), 'r') as zipped_file:
                         with zipped_file.open(CSV_NAME) as file:
                             dataframe = pd.read_csv(file, skiprows=3)
